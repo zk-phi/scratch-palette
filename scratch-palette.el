@@ -16,7 +16,7 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-;; Version: 1.0.0
+;; Version: 1.0.1
 ;; Author: zk_phi
 ;; URL: http://hins11.yu-yake.com/
 
@@ -38,19 +38,53 @@
 ;;; Change Log:
 
 ;; 1.0.0 first released
+;; 1.0.1 minor fixes and refactorings
 
 ;;; Code:
 
 ;; * constants
 
-(defconst scratch-palette-version "1.0.0")
+(defconst scratch-palette-version "1.0.1")
 
 ;; * configures
 
 (defvar scratch-palette-directory "~/.emacs.d/palette/"
   "directory used to store palette files in")
 
-;; * scratch-palette
+(defconst scratch-palette-popwin-available (require 'popwin nil t)
+  "if popwin is avaiable to popup palettes")
+
+;; * minor mode for scratch-palette buffer
+
+(defvar scratch-palette-minor-mode nil
+  "minor mode for palette files")
+
+(defvar scratch-palette-minor-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-x C-k") 'scratch-palette-kill)
+    (define-key map (kbd "C-x C-s") 'scratch-palette-kill)
+    (define-key map (kbd "C-g") 'scratch-palette-kill)
+    map)
+  "keymap for palette files")
+
+(make-variable-buffer-local 'scratch-palette-minor-mode)
+
+(when (not (assq 'scratch-palette-minor-mode minor-mode-alist))
+  (add-to-list
+   'minor-mode-alist
+   '(scratch-palette-minor-mode " Palette")))
+
+(add-to-list 'minor-mode-map-alist
+             (cons 'scratch-palette-minor-mode scratch-palette-minor-mode-map))
+
+(defun scratch-palette-kill ()
+  "save and kill palette buffer"
+  (interactive) (save-buffer) (kill-buffer)
+  (if scratch-palette-popwin-available
+      (popwin:close-popup-window)
+    (delete-window)))
+
+;; * commands and function
 
 (defun scratch-palette-file ()
   "get the palette filename for this buffer"
@@ -60,9 +94,6 @@
                 (replace-regexp-in-string "[/:.]" "!" s)
                 ".org")
       nil)))
-
-(defconst scratch-palette-popwin-available (require 'popwin nil t)
-  "if popwin is avaiable to popup palettes")
 
 (defun scratch-palette-popup ()
   "find the palette file and display it"
@@ -76,38 +107,6 @@
           (rename-buffer "*Palette*")
           (setq scratch-palette-minor-mode t))
       (message "no visited file found for this buffer"))))
-
-;; * minor mode for scratch-palette buffer
-
-(defvar scratch-palette-minor-mode nil
-  "minor mode for palette files")
-
-(make-variable-buffer-local 'scratch-palette-minor-mode)
-
-(defvar scratch-palette-minor-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-x C-k") 'scratch-palette-kill)
-    (define-key map (kbd "C-x C-s") 'scratch-palette-kill)
-    (define-key map (kbd "C-g") 'scratch-palette-kill)
-    map)
-  "keymap for palette files")
-
-(when (not (assq 'scratch-palette-minor-mode minor-mode-alist))
-  (add-to-list
-   'minor-mode-alist
-   '(scratch-palette-minor-mode " Palette")))
-
-(when (not (assq 'scratch-palette-minor-mode-map minor-mode-map-alist))
-  (add-to-list
-   'minor-mode-map-alist
-   (cons 'scratch-palette-minor-mode scratch-palette-minor-mode-map)))
-
-(defun scratch-palette-kill ()
-  "save and kill palette buffer"
-  (interactive) (save-buffer) (kill-buffer)
-  (if scratch-palette-popwin-available
-      (popwin:close-popup-window)
-    (delete-window)))
 
 ;; * provide
 
