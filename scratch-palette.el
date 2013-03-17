@@ -112,4 +112,4 @@
 
 (provide 'scratch-palette)
 
-;; scratch-palette.el ends here
+;;; scratch-palette.el ends here
