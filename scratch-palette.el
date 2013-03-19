@@ -1,4 +1,4 @@
-;;; scratch-palette --- add scratch notes for each file
+;;; scratch-palette.el --- add scratch notes for each file
 
 ;; Copyright (C) 2012 zk_phi
 
