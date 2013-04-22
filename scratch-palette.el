@@ -48,8 +48,15 @@
 
 ;; * configures
 
-(defvar scratch-palette-directory "~/.emacs.d/palette/"
-  "directory used to store palette files in")
+(defgroup scratch-palette nil
+  "add scratch notes for each file"
+  :group 'emacs)
+
+(defcustom scratch-palette-directory "~/.emacs.d/palette/"
+  "directory used to store palette files in"
+  :group 'scratch-palette)
+
+;; * popwin association
 
 (defconst scratch-palette-popwin-available (require 'popwin nil t)
   "if popwin is avaiable to popup palettes")
