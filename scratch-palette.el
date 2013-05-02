@@ -86,7 +86,9 @@
 
 (defun scratch-palette-kill ()
   "save and kill palette buffer"
-  (interactive) (save-buffer) (kill-buffer)
+  (interactive)
+  (save-buffer)
+  (kill-buffer)
   (if scratch-palette-popwin-available
       (popwin:close-popup-window)
     (delete-window)))
@@ -102,6 +104,7 @@
                 ".org")
       nil)))
 
+;;;###autoload
 (defun scratch-palette-popup ()
   "find the palette file and display it"
   (interactive)
