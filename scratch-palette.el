@@ -63,9 +63,6 @@
 
 ;; * minor mode for scratch-palette buffer
 
-(defvar scratch-palette-minor-mode nil
-  "minor mode for palette files")
-
 (defvar scratch-palette-minor-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-x C-k") 'scratch-palette-kill)
@@ -74,15 +71,12 @@
     map)
   "keymap for palette files")
 
-(make-variable-buffer-local 'scratch-palette-minor-mode)
-
-(when (not (assq 'scratch-palette-minor-mode minor-mode-alist))
-  (add-to-list
-   'minor-mode-alist
-   '(scratch-palette-minor-mode " Palette")))
-
-(add-to-list 'minor-mode-map-alist
-             (cons 'scratch-palette-minor-mode scratch-palette-minor-mode-map))
+(define-minor-mode scratch-palette-minor-mode
+  "minor mode for palette files"
+  :init-value nil
+  :global nil
+  :map scratch-palette-minor-mode-map
+  :lighter " Palette")
 
 (defun scratch-palette-kill ()
   "save and kill palette buffer"
@@ -115,7 +109,7 @@
               (popwin:find-file file)
             (find-file file))
           (rename-buffer "*Palette*")
-          (setq scratch-palette-minor-mode t))
+          (scratch-palette-minor-mode 1))
       (message "no visited file found for this buffer"))))
 
 ;; * provide
