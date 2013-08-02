@@ -2,7 +2,7 @@
 
 ファイルにメモを残す
 
-add scratch notes for each file
+save scratch notes on each file
 
 ** Usage
 
@@ -12,8 +12,10 @@ Require this script and set a directory to save notes in.
 : (setq scratch-palette-directory "~/.emacs.d/palette/")
 
 Then a command "scratch-palette-popup" is available. This command
-displays the note for the file currently editing. If there is no
-scratch note yet, a new note is created.
+displays the note for the file currently editing. If there is no note
+yet, a new note is created.
+
+When called with region, the region is yanked to the note.
 
 You may close note with one of "C-g", "C-x C-x", or "C-x C-k". Its
 contents are automatically saved.

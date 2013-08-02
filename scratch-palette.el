@@ -1,4 +1,4 @@
-;;; scratch-palette.el --- add scratch notes for each file
+;;; scratch-palette.el --- save scratch notes on each file
 
 ;; Copyright (C) 2012 zk_phi
 
@@ -39,6 +39,8 @@
 
 ;; 1.0.0 first released
 ;; 1.0.1 minor fixes and refactorings
+;; 1.0.2 yank region automatically
+;;       palette detection on find-file
 
 ;;; Code:
 
@@ -56,7 +58,7 @@
   "directory used to store palette files in"
   :group 'scratch-palette)
 
-;; * popwin association
+;; * popwin integration
 
 (defconst scratch-palette-popwin-available (require 'popwin nil t)
   "if popwin is avaiable to popup palettes")
@@ -87,30 +89,44 @@
       (popwin:close-popup-window)
     (delete-window)))
 
-;; * commands and function
+;; * commands and functions
 
 (defun scratch-palette-file ()
   "get the palette filename for this buffer"
-  (let ((s (buffer-file-name)))
-    (if s
-        (concat scratch-palette-directory
-                (replace-regexp-in-string "[/:.]" "!" s)
-                ".org")
-      nil)))
+  (let ((bfn (buffer-file-name)))
+    (when bfn
+      (concat scratch-palette-directory
+              (replace-regexp-in-string "[/:]" "!" bfn)))))
 
 ;;;###autoload
 (defun scratch-palette-popup ()
   "find the palette file and display it"
   (interactive)
-  (let ((file (scratch-palette-file)))
-    (if file
-        (progn
-          (if scratch-palette-popwin-available
-              (popwin:find-file file)
-            (find-file file))
-          (rename-buffer "*Palette*")
-          (scratch-palette-minor-mode 1))
-      (message "no visited file found for this buffer"))))
+  (let ((file (scratch-palette-file))
+        str)
+    (when (use-region-p)
+      (setq str (buffer-substring (region-beginning) (region-end)))
+      (delete-region (region-beginning) (region-end))
+      (deactivate-mark))
+    (if (null file)
+        (error "not file buffer")
+      (if scratch-palette-popwin-available
+          (popwin:find-file file)
+        (find-file file))
+      (rename-buffer "*Palette*")
+      (scratch-palette-minor-mode 1)
+      (goto-char (point-max))
+      (when str
+        (insert (concat "\n" str "\n"))))))
+
+;; * palette detection
+
+(defun scratch-palette-detect-scratch ()
+  (when (file-exists-p (scratch-palette-file))
+    (message "note: scratch-palette detected.")
+    (sit-for 0.5)))
+
+(add-hook 'find-file-hook 'scratch-palette-detect-scratch)
 
 ;; * provide
 
