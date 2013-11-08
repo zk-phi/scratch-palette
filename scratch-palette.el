@@ -48,6 +48,10 @@
 
 (defconst scratch-palette-version "1.0.1")
 
+;; * possible dependencies
+
+(require 'popwin nil t)
+
 ;; * configures
 
 (defgroup scratch-palette nil
@@ -57,11 +61,6 @@
 (defcustom scratch-palette-directory "~/.emacs.d/palette/"
   "directory used to store palette files in"
   :group 'scratch-palette)
-
-;; * popwin integration
-
-(defconst scratch-palette-popwin-available (require 'popwin nil t)
-  "if popwin is avaiable to popup palettes")
 
 ;; * minor mode for scratch-palette buffer
 
@@ -77,7 +76,7 @@
   "minor mode for palette files"
   :init-value nil
   :global nil
-  :map scratch-palette-minor-mode-map
+  :keymap scratch-palette-minor-mode-map
   :lighter " Palette")
 
 (defun scratch-palette-kill ()
@@ -85,7 +84,7 @@
   (interactive)
   (save-buffer)
   (kill-buffer)
-  (if scratch-palette-popwin-available
+  (if (fboundp 'popwin:close-popup-window)
       (popwin:close-popup-window)
     (delete-window)))
 
@@ -110,7 +109,7 @@
       (deactivate-mark))
     (if (null file)
         (error "not file buffer")
-      (if scratch-palette-popwin-available
+      (if (fboundp 'popwin:find-file)
           (popwin:find-file file)
         (find-file file))
       (rename-buffer "*Palette*")
