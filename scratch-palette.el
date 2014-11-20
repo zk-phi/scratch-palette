@@ -65,11 +65,11 @@
 ;; * minor mode for scratch-palette buffer
 
 (defvar scratch-palette-minor-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-x C-k") 'scratch-palette-kill)
-    (define-key map (kbd "C-x C-s") 'scratch-palette-kill)
-    (define-key map (kbd "C-g") 'scratch-palette-kill)
-    map)
+  (let ((kmap (make-sparse-keymap)))
+    (define-key kmap (kbd "C-x C-k") 'scratch-palette-kill)
+    (define-key kmap (kbd "C-x C-s") 'scratch-palette-kill)
+    (define-key kmap (kbd "C-g") 'scratch-palette-kill)
+    kmap)
   "keymap for palette files")
 
 (define-minor-mode scratch-palette-minor-mode
