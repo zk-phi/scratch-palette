@@ -81,7 +81,7 @@
 
 ;; * utils
 
-(defun scratch-palette--palette-file ()
+(defun scratch-palette--palette-file-name ()
   "get the palette filename for this buffer"
   (let ((bfn (buffer-file-name)))
     (when bfn
@@ -103,7 +103,7 @@
 (defun scratch-palette-popup ()
   "find the palette file and display it"
   (interactive)
-  (let ((file (scratch-palette--palette-file))
+  (let ((file (scratch-palette--palette-file-name))
         str)
     (when (use-region-p)
       (setq str (buffer-substring (region-beginning) (region-end)))
@@ -122,11 +122,8 @@
 
 ;; * find-file hooks
 
-(defun scratch-palette-detect-scratch ()
-  (file-exists-p (scratch-palette--palette-file)))
-
 (defun scratch-palette--find-file-hook ()
-  (when (scratch-palette-detect-scratch)
+  (when (file-exists-p (scratch-palette--palette-file-name))
     (message "note: scratch-palette detected.")
     (sit-for 0.5)))
 
