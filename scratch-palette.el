@@ -1,6 +1,6 @@
 ;;; scratch-palette.el --- save scratch notes on each file
 
-;; Copyright (C) 2012 zk_phi
+;; Copyright (C) 2012-2015 zk_phi
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -79,6 +79,17 @@
   :keymap scratch-palette-minor-mode-map
   :lighter " Palette")
 
+;; * utils
+
+(defun scratch-palette--palette-file ()
+  "get the palette filename for this buffer"
+  (let ((bfn (buffer-file-name)))
+    (when bfn
+      (concat scratch-palette-directory
+              (replace-regexp-in-string "[/:]" "!" bfn)))))
+
+;; * commands
+
 (defun scratch-palette-kill ()
   "save and kill palette buffer"
   (interactive)
@@ -88,20 +99,11 @@
       (popwin:close-popup-window)
     (delete-window)))
 
-;; * commands and functions
-
-(defun scratch-palette-file ()
-  "get the palette filename for this buffer"
-  (let ((bfn (buffer-file-name)))
-    (when bfn
-      (concat scratch-palette-directory
-              (replace-regexp-in-string "[/:]" "!" bfn)))))
-
 ;;;###autoload
 (defun scratch-palette-popup ()
   "find the palette file and display it"
   (interactive)
-  (let ((file (scratch-palette-file))
+  (let ((file (scratch-palette--palette-file))
         str)
     (when (use-region-p)
       (setq str (buffer-substring (region-beginning) (region-end)))
@@ -118,14 +120,17 @@
       (when str
         (insert (concat "\n" str "\n"))))))
 
-;; * palette detection
+;; * find-file hooks
 
 (defun scratch-palette-detect-scratch ()
-  (when (file-exists-p (scratch-palette-file))
+  (file-exists-p (scratch-palette--palette-file)))
+
+(defun scratch-palette--find-file-hook ()
+  (when (scratch-palette-detect-scratch)
     (message "note: scratch-palette detected.")
     (sit-for 0.5)))
 
-(add-hook 'find-file-hook 'scratch-palette-detect-scratch)
+(add-hook 'find-file-hook 'scratch-palette--find-file-hook)
 
 ;; * provide
 
