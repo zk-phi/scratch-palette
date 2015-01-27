@@ -16,7 +16,7 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-;; Version: 1.0.1
+;; Version: 1.0.2
 ;; Author: zk_phi
 ;; URL: http://hins11.yu-yake.com/
 
@@ -46,7 +46,7 @@
 
 ;; * constants
 
-(defconst scratch-palette-version "1.0.1")
+(defconst scratch-palette-version "1.0.2")
 
 ;; * possible dependencies
 
