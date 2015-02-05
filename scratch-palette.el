@@ -93,7 +93,10 @@
 (defun scratch-palette-kill ()
   "save and kill palette buffer"
   (interactive)
-  (save-buffer)
+  (when scratch-palette-minor-mode
+    (if (= (point-min) (point-max))
+        (delete-file buffer-file-name)
+      (save-buffer)))
   (kill-buffer)
   (if (fboundp 'popwin:close-popup-window)
       (popwin:close-popup-window)
