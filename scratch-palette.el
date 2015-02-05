@@ -95,7 +95,8 @@
   (interactive)
   (when scratch-palette-minor-mode
     (if (= (point-min) (point-max))
-        (delete-file buffer-file-name)
+        (when (file-exists-p buffer-file-name)
+          (delete-file buffer-file-name))
       (save-buffer)))
   (kill-buffer)
   (if (fboundp 'popwin:close-popup-window)
