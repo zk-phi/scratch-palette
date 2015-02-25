@@ -1,4 +1,4 @@
-;;; scratch-palette.el --- save scratch notes on each file
+;;; scratch-palette.el --- make scratch buffer for each files
 
 ;; Copyright (C) 2012-2015 zk_phi
 
@@ -19,21 +19,21 @@
 ;; Version: 1.0.2
 ;; Author: zk_phi
 ;; URL: http://hins11.yu-yake.com/
+;; Package-Requires: ((popwin "0.7.0alpha"))
 
 ;;; Commentary:
 
-;; To install, put code like
+;; Require this script and set a directory to save scratches in.
 ;;
 ;;   (require 'scratch-palette)
-;;
-;; in your .emacs file. You can display and edit scratch note for the
-;; currently-editing file, with "M-x scratch-palette-popup". If there's
-;; no scratch notes yet, a new scratch note is created. Scratch note is
-;; is hidden when pressed "C-g", "C-x C-s" or "C-x C-k", saving contents.
-;; All scratch notes are stored in scratch-palette-directory. You can also
-;; change the directory with code like
-;;
 ;;   (setq scratch-palette-directory "~/.emacs.d/palette/")
+;;
+;; Then the command =M-x scratch-palette-popup= is available. This
+;; command displays the scratch buffer for the file. When called with
+;; region, the region is yanked to the scratch buffer.
+;;
+;; You may close note with one of =C-g=, =C-x C-x=, or =C-x C-k=. Its
+;; contents are automatically saved.
 
 ;;; Change Log:
 
@@ -41,18 +41,15 @@
 ;; 1.0.1 minor fixes and refactorings
 ;; 1.0.2 yank region automatically
 ;;       palette detection on find-file
+;; 1.0.3 require popwin
 
 ;;; Code:
 
-;; * constants
+(require 'popwin)
 
-(defconst scratch-palette-version "1.0.2")
+(defconst scratch-palette-version "1.0.3")
 
-;; * possible dependencies
-
-(require 'popwin nil t)
-
-;; * configures
+;; + customs
 
 (defgroup scratch-palette nil
   "add scratch notes for each file"
@@ -62,73 +59,67 @@
   "directory used to store palette files in"
   :group 'scratch-palette)
 
-;; * minor mode for scratch-palette buffer
+;; + minor mode for scratch-palette buffers
 
 (defvar scratch-palette-minor-mode-map
   (let ((kmap (make-sparse-keymap)))
     (define-key kmap (kbd "C-x C-k") 'scratch-palette-kill)
     (define-key kmap (kbd "C-x C-s") 'scratch-palette-kill)
-    (define-key kmap (kbd "C-g") 'scratch-palette-kill)
+    (define-key kmap (kbd "C-g")     'scratch-palette-kill)
     kmap)
-  "keymap for palette files")
+  "keymap for scratch-palette buffers")
 
 (define-minor-mode scratch-palette-minor-mode
-  "minor mode for palette files"
+  "minor mode for scratch-palette files"
   :init-value nil
   :global nil
   :keymap scratch-palette-minor-mode-map
   :lighter " Palette")
 
-;; * utils
+;; + utils
 
-(defun scratch-palette--palette-file-name ()
-  "get the palette filename for this buffer"
-  (let ((bfn (buffer-file-name)))
-    (when bfn
-      (concat scratch-palette-directory
-              (replace-regexp-in-string "[/:]" "!" bfn)))))
+(defun scratch-palette--file-name (name)
+  "get the scratch-palette filename for this buffer"
+  (concat scratch-palette-directory
+          (replace-regexp-in-string "[/:]" "!" name)))
 
-;; * commands
+;; + commands
 
 (defun scratch-palette-kill ()
-  "save and kill palette buffer"
+  "save and kill scratch-palette buffer"
   (interactive)
-  (when scratch-palette-minor-mode
-    (if (= (point-min) (point-max))
-        (when (file-exists-p buffer-file-name)
-          (delete-file buffer-file-name))
-      (save-buffer)))
+  ;; save (or delete if empty)
+  (if (= (point-min) (point-max))
+      (when (file-exists-p buffer-file-name)
+        (delete-file buffer-file-name))
+    (save-buffer))
   (kill-buffer)
-  (if (fboundp 'popwin:close-popup-window)
-      (popwin:close-popup-window)
-    (delete-window)))
+  (popwin:close-popup-window))
 
 ;;;###autoload
 (defun scratch-palette-popup ()
   "find the palette file and display it"
   (interactive)
-  (let ((file (scratch-palette--palette-file-name))
-        str)
-    (when (use-region-p)
-      (setq str (buffer-substring (region-beginning) (region-end)))
-      (delete-region (region-beginning) (region-end))
-      (deactivate-mark))
-    (if (null file)
-        (error "not file buffer")
-      (if (fboundp 'popwin:find-file)
-          (popwin:find-file file)
-        (find-file file))
-      (rename-buffer "*Palette*")
-      (scratch-palette-minor-mode 1)
+  (unless buffer-file-name
+    (error "not a file buffer"))
+  (let ((file (scratch-palette--file-name buffer-file-name))
+        (str (when (use-region-p)
+               (prog1 (buffer-substring (region-beginning) (region-end))
+                 (delete-region (region-beginning) (region-end))
+                 (deactivate-mark)))))
+    (popwin:find-file file)
+    (rename-buffer "*Palette*")
+    (scratch-palette-minor-mode 1)
+    (when str
       (goto-char (point-max))
-      (when str
-        (insert (concat "\n" str "\n"))))))
+      (insert (concat "\n" str "\n")))))
 
-;; * find-file hooks
+;; + find-file hooks
 
 (defun scratch-palette--find-file-hook ()
-  (when (file-exists-p (scratch-palette--palette-file-name))
-    (message "note: scratch-palette detected.")
+  (when (and buffer-file-name
+             (file-exists-p (scratch-palette--file-name buffer-file-name)))
+    (message "scratch-palette: scratch-palette detected.")
     (sit-for 0.5)))
 
 (add-hook 'find-file-hook 'scratch-palette--find-file-hook)
