@@ -18,7 +18,7 @@
 
 ;; Version: 1.0.2
 ;; Author: zk_phi
-;; URL: http://hins11.yu-yake.com/
+;; URL: http://zk-phi.gitub.io/
 ;; Package-Requires: ((popwin "0.7.0alpha"))
 
 ;;; Commentary:
