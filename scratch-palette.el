@@ -57,6 +57,7 @@
 
 (defcustom scratch-palette-directory "~/.emacs.d/palette/"
   "directory used to store palette files in"
+  :type 'string
   :group 'scratch-palette)
 
 ;; + minor mode for scratch-palette buffers
