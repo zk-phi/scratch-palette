@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t -*-
 ;;; scratch-palette.el --- make scratch buffer for each files
 
 ;; Copyright (C) 2012-2015 zk_phi
