@@ -4,6 +4,18 @@
 
 make scratch buffer for each files
 
+** Incompatible changes 1.0.4
+
+This plugin no longer requires popwin to work, and the behavior is slightly changed.
+
+If you want the previous behavior, specify =popwin:popup-buffer= explicitly.
+
+#+begin_src emacs-lisp
+  (require 'popwin)
+  (setq scratch-palette-popup-function popwin:popup-buffer)
+#+end_src
+
+
 ** Usage
 
 Require this script and set a directory to save scratches in.
