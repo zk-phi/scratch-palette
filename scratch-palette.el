@@ -17,10 +17,10 @@
 ;; along with this program; if not, write to the Free Software
 ;; Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-;; Version: 1.0.2
+;; Version: 1.0.4
 ;; Author: zk_phi
 ;; URL: http://zk-phi.gitub.io/
-;; Package-Requires: ((popwin "0.7.0alpha"))
+;; Package-Requires: ()
 
 ;;; Commentary:
 
@@ -43,12 +43,11 @@
 ;; 1.0.2 yank region automatically
 ;;       palette detection on find-file
 ;; 1.0.3 require popwin
+;; 1.0.4 use display-buffer instead of popwin, and make the behavior customizable
 
 ;;; Code:
 
-(require 'popwin)
-
-(defconst scratch-palette-version "1.0.3")
+(defconst scratch-palette-version "1.0.4")
 
 ;; + customs
 
@@ -60,6 +59,11 @@
   "directory used to store palette files in"
   :type 'string
   :group 'scratch-palette)
+
+(defcustom scratch-palette-popup-function 'scratch-palette-popup-buffer
+  "Function used to popup scratch-palette buffers."
+  :group 'scratch-pop
+  :type 'function)
 
 ;; + minor mode for scratch-palette buffers
 
@@ -95,8 +99,10 @@
       (when (file-exists-p buffer-file-name)
         (delete-file buffer-file-name))
     (save-buffer))
-  (kill-buffer)
-  (popwin:close-popup-window))
+  (quit-window t))
+
+(defun scratch-palette-popup-buffer (buf)
+  (select-window (display-buffer-below-selected buf nil)))
 
 ;;;###autoload
 (defun scratch-palette-popup ()
@@ -109,7 +115,7 @@
                (prog1 (buffer-substring (region-beginning) (region-end))
                  (delete-region (region-beginning) (region-end))
                  (deactivate-mark)))))
-    (popwin:find-file file)
+    (funcall scratch-palette-popup-function (find-file-noselect file))
     (rename-buffer "*Palette*")
     (scratch-palette-minor-mode 1)
     (when str
