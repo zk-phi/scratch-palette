@@ -19,7 +19,7 @@
 
 ;; Version: 1.0.4
 ;; Author: zk_phi
-;; URL: http://zk-phi.gitub.io/
+;; URL: http://zk-phi.github.io/
 ;; Package-Requires: ()
 
 ;;; Commentary:
